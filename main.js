@@ -46,9 +46,22 @@ function startGame() {
         ancho: 90,
         alto: 135
     }
-    puerta1 = new component(puertaMeds.ancho, puertaMeds.alto, "./img/puerta.png", 232, 121,puertaMeds.ancho, puertaMeds.alto,true)
-    puerta2 = new component(puertaMeds.ancho, puertaMeds.alto, "./img/puerta.png", 638, 121,puertaMeds.ancho, puertaMeds.alto,true)
-    puerta3 = new component(puertaMeds.ancho, puertaMeds.alto, "./img/puerta.png", 1044, 121,puertaMeds.ancho, puertaMeds.alto,true)
+    let sensorMeds = {
+        ancho: 30,
+        alto: 30
+    }
+    puerta1 = new component(puertaMeds.ancho, puertaMeds.alto, "./img/puerta.png", 232, 121, puertaMeds.ancho, puertaMeds.alto, true)
+    sensor1 = new component(sensorMeds.ancho, sensorMeds.alto, "./img/lector.png", 322, 181,null,null, false, "lector")
+    puerta2 = new component(puertaMeds.ancho, puertaMeds.alto, "./img/puerta.png", 638, 121, puertaMeds.ancho, puertaMeds.alto, true)
+    sensor2 = new component(sensorMeds.ancho, sensorMeds.alto, "./img/lector.png", 728, 181,null,null, false, "lector")
+    puerta3 = new component(puertaMeds.ancho, puertaMeds.alto, "./img/puerta.png", 1044, 121, puertaMeds.ancho, puertaMeds.alto, true)
+    sensor3 = new component(sensorMeds.ancho, sensorMeds.alto, "./img/lector.png", 1134, 181,null,null, false, "lector")
+
+    let bocadilloMeds = {
+        ancho: 100,
+        alto: 100
+    }
+    bocadillo = new component(bocadilloMeds.ancho, bocadilloMeds.alto, "./img/bocadillo.png")
 
 }
 
@@ -83,7 +96,7 @@ let myGameArea = {
     }
 
 }
-function component(width, height, imageSrc, x, y, cW, cH, movible) {
+function component(width, height, imageSrc, x, y, cW, cH, movible,name) {
 
     this.width = width;
     this.height = height;
@@ -97,22 +110,40 @@ function component(width, height, imageSrc, x, y, cW, cH, movible) {
     this.image = new Image();
     this.image.src = imageSrc;
     this.movible = movible;
+    this.name = name
     this.colliderPropio = [
         new collider(this.x, this.y, this.x, this.y + this.cH),//origen-vertical
         new collider(this.x, this.y, this.x + this.cW, this.y),//origen-horizontal
         new collider(this.x + this.cW, this.y + this.cH, this.x + this.cW, this.y),//destino-horizontal
         new collider(this.x + this.cW, this.y + this.cH, this.x, this.y + this.cH)//destino-vertical
-    ]
+    ];
     colliderArray.push(this.colliderPropio);
     /* this.col00 = {x: this.x, y: this.y};//arriba izquierda
     this.col01 = {x: this.x + this.width, y: this.y};  //arriba derecha
     this.col10 = {x: this.x, y: this.y + this.height}; // abaja izquierda
     this.col11 = {x: this.x + this.width, y: this.y + this.height}; //abajo derecha */
 
+    this.checkDistance = function () {
+        if (this.name == "lector") {
+            let x1 = this.x + this.width / 2//punto medio del sensor
+            let y1 = this.y; //altura del personaje
+            let x2 = myGamePiece.x + myGamePiece.width //punto medio del personaje
+            let y2 = myGamePiece.y//altura del personaje
+            let dX = x1 - x2;
+            let dY = y1 - y2;
+            let distancia = Math.sqrt(Math.pow(dX, 2) + Math.pow(dY, 2))
+            console.log(distancia)
+            if (distancia < 70 && myGamePiece.y > this.y + this.height/2) {
+                ctx = myGameArea.context;
+                ctx.drawImage(bocadillo.image, this.x+this.width/2.5, this.y-bocadillo.height-5, bocadillo.width, bocadillo.height); 
+            }
+        }
+
+    };
 
 
     this.update = function () {
-        if(this.movible){
+        if (this.movible) {
             let newColliderPropio = [
                 new collider(this.x, this.y, this.x, this.y + cH),//origen-vertical
                 new collider(this.x, this.y, this.x + cW, this.y),//origen-horizontal
@@ -120,13 +151,13 @@ function component(width, height, imageSrc, x, y, cW, cH, movible) {
                 new collider(this.x + cW, this.y + cH, this.x, this.y + cH)//destino-vertical
             ]
             let index = colliderArray.indexOf(this.colliderPropio)
-            console.log(colliderArray.indexOf(this.colliderPropio))
+            //console.log(colliderArray.indexOf(this.colliderPropio))
             if (index !== -1) {
                 colliderArray[index] = newColliderPropio;
                 this.colliderPropio = newColliderPropio;
             }
         }
-        
+
 
 
 
@@ -158,7 +189,7 @@ function collider(A0, A1, B0, B1) {
         ) {
             // Hay colisión, implementa la lógica de respuesta a la colisión aquí
             gameObject.speedX = 0;
-            gameObject.speedY = 0;  
+            gameObject.speedY = 0;
             console.log("Colisión detectada: ");
         }
     };
@@ -198,6 +229,13 @@ function updateGameArea() {//funcion que llama al clear y update de sus respecti
     puerta3.update();
 
     myWall.update();
+
+    sensor1.update();
+    sensor1.checkDistance();
+    sensor2.update();
+    sensor2.checkDistance();
+    sensor3.update();
+    sensor3.checkDistance();
     colliderArray.forEach(element => {
         element.forEach(subElement => {
             subElement.draw();
@@ -207,16 +245,15 @@ function updateGameArea() {//funcion que llama al clear y update de sus respecti
     });
 
 
-    //console.log(colliderArray[6][0].pointA)
+    //console.log(sensor1.image.src)
 
     secretaria.update();
     escritorio.update();
     myGamePiece.newPos();
     myGamePiece.update();
-    updateCount++;
-    if (updateCount > 3) {
-        updateCount = 1;
-    }
+
+    // ponerlo como equivalente a check collision pero en un objeto
+
 }
 function imagenFrame() {
 
@@ -225,9 +262,11 @@ function imagenFrame() {
         secretariaspr = 1;
     }
     secretaria.image.src = "img/secretaria/secre" + secretariaspr + ".png"
+}
+
+function leerTarjeta() {
 
 
 }
-
 
 
