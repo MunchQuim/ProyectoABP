@@ -52,14 +52,17 @@ function startGame() {
     }
     puerta1 = new component(puertaMeds.ancho, puertaMeds.alto, "./img/puerta.png", 232, 121, puertaMeds.ancho, puertaMeds.alto, true)
     sensor1 = new component(sensorMeds.ancho, sensorMeds.alto, "./img/lector.png", 322, 181,null,null, false, "lector")
+    sensor1.puerta = "laboratorio"
     puerta2 = new component(puertaMeds.ancho, puertaMeds.alto, "./img/puerta.png", 638, 121, puertaMeds.ancho, puertaMeds.alto, true)
     sensor2 = new component(sensorMeds.ancho, sensorMeds.alto, "./img/lector.png", 728, 181,null,null, false, "lector")
+    sensor2.puerta = "despacho del jefe"
     puerta3 = new component(puertaMeds.ancho, puertaMeds.alto, "./img/puerta.png", 1044, 121, puertaMeds.ancho, puertaMeds.alto, true)
     sensor3 = new component(sensorMeds.ancho, sensorMeds.alto, "./img/lector.png", 1134, 181,null,null, false, "lector")
+    sensor3.puerta = "oficinas"
 
     let bocadilloMeds = {
-        ancho: 100,
-        alto: 100
+        ancho: 170,
+        alto: 120
     }
     bocadillo = new component(bocadilloMeds.ancho, bocadilloMeds.alto, "./img/bocadillo.png")
 
@@ -111,6 +114,7 @@ function component(width, height, imageSrc, x, y, cW, cH, movible,name) {
     this.image.src = imageSrc;
     this.movible = movible;
     this.name = name
+    this.puerta;
     this.colliderPropio = [
         new collider(this.x, this.y, this.x, this.y + this.cH),//origen-vertical
         new collider(this.x, this.y, this.x + this.cW, this.y),//origen-horizontal
@@ -136,6 +140,17 @@ function component(width, height, imageSrc, x, y, cW, cH, movible,name) {
             if (distancia < 70 && myGamePiece.y > this.y + this.height/2) {
                 ctx = myGameArea.context;
                 ctx.drawImage(bocadillo.image, this.x+this.width/2.5, this.y-bocadillo.height-5, bocadillo.width, bocadillo.height); 
+                ctx.font = "15px Arial";
+                ctx.fillStyle = "black";
+                ctx.fillText("¡Bienvenido a monlab!",bocadillo.width/20+this.x+this.width/2.5, this.y-bocadillo.height+15,)
+                ctx.fillText("Para entrar a",bocadillo.width/20+this.x+this.width/2.5, this.y-bocadillo.height+30,)
+                ctx.fillText(this.puerta,bocadillo.width/20+this.x+this.width/2.5, this.y-bocadillo.height+45,)
+                ctx.fillText("Porfavor acerque la",bocadillo.width/20+this.x+this.width/2.5, this.y-bocadillo.height+60,)
+                ctx.fillText("tarjeta al lector",bocadillo.width/20+this.x+this.width/2.5, this.y-bocadillo.height+75,)
+                
+                if(true){//condicion de recibir el json
+
+                }
             }
         }
 
