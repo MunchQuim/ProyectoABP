@@ -1,9 +1,26 @@
 let myGamePiece;
 let colliderArray = [];
 let updateArray = [];
+let nombre;
+
+async function recibirNombre(){
+    const response = await fetch('http://localhost:2727/name');
+    const data = await response.json();
+    const nombre = data.Name;
+    return(nombre);
+}
+async function obtenerYMostrarNombre() {
+    try {
+        nombre = await recibirNombre();
+        startGame();
+    } catch (error) {
+        console.error('Error al obtener el nombre:', error);
+    }
+}
+
 function startGame() {
     myGameArea.start();//empieza la funcion de start en myGameArea(crea el fondo)
-
+    console.log(nombre);
     let alfMeds = { //medidas de alfombra
         ancho: 120,
         alto: myGameArea.canvas.height
@@ -35,14 +52,14 @@ function startGame() {
 
 
     secretaria = new component(secretariaMeds.ancho, secretariaMeds.alto, "img/secretaria/secre1.png", (myGameArea.canvas.width / 2) - secretariaMeds.ancho / 2, 340, secretariaMeds.ancho, secretariaMeds.alto)
-
+    secretaria.name = "secretaria";
     let charMeds = {
         ancho: 60,
         alto: 90
     }
     myGamePiece = new component(charMeds.ancho, charMeds.alto, "./img/chad.jpg", (myGameArea.canvas.width / 2) - charMeds.ancho / 2, myGameArea.canvas.height - charMeds.alto);// crea un objeto tipo component (width,heigh, color, posicionx, posiciony)
     //(myGameArea.canvas.width/2)-charMeds.ancho/2 ,myGameArea.canvas.height-charMeds.alto
-
+    myGamePiece.name = nombre;
     let puertaMeds = {
         ancho: 90,
         alto: 135
@@ -143,33 +160,6 @@ function bComponent(width, height, imageSrc, x, y, cW, cH, movible, name) {
             let dX = x1 - x2;
             let dY = y1 - y2;
             let distancia = Math.sqrt(Math.pow(dX, 2) + Math.pow(dY, 2))
-            //console.log(distancia)
-            /* if (distancia < 70 && myGamePiece.y > this.y + this.height / 2 && !this.activo) {
-                ctx = myGameArea.context;
-                ctx.drawImage(bocadillo.image, this.x + this.width * 1.1, this.y - bocadillo.height + this.height / 2.5, bocadillo.width, bocadillo.height);
-                ctx.font = "15px Arial";
-                ctx.fillStyle = "black";
-                ctx.fillText("¡Bienvenido a monlab!", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 20 + this.height / 2.5,)
-                ctx.fillText("Para entrar a", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 35 + this.height / 2.5,)
-                ctx.fillText("\"" + this.puerta + "\"", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 50 + this.height / 2.5,)
-                ctx.fillText("porfavor acerque la", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 65 + this.height / 2.5,)
-                ctx.fillText("tarjeta al lector", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 80 + this.height / 2.5,)
-
-                if (leerTarjeta()) {//condicion de recibir el json
-                    this.activo = true;
-                }
-
-            } */
-            /* if (this.activo && this.x != this.xObjetivo) {
-                this.speedX = -1;
-                this.newPos();
-            }
-            if (this.x == this.xObjetivo){
-                let index = colliderArray.indexOf(this.colliderPropio)
-                if (index != -1){
-                    colliderArray.splice(index,1)
-                }
-            } */
 
         }
 
@@ -275,6 +265,27 @@ function component(width, height, imageSrc, x, y, cW, cH, movible, name) {
             }
 
         }
+        else if (this.name == "secretaria") {
+            let x1 = this.x + this.width / 2//punto medio de la puerta
+            let y1 = this.y + this.height / 2; //altura de la puerta
+            let x2 = myGamePiece.x + myGamePiece.width/2 //punto medio del personaje
+            let y2 = myGamePiece.y//altura del personaje
+            let dX = x1 - x2;
+            let dY = y1 - y2;
+            let distancia = Math.sqrt(Math.pow(dX, 2) + Math.pow(dY, 2))
+            //console.log(distancia)
+            if (distancia < 100 && myGamePiece.y > this.y + this.height / 2){
+                ctx = myGameArea.context;
+                ctx.drawImage(bocadillo.image, this.x + this.width * 1.1, this.y - bocadillo.height-10 + this.height / 2.5, bocadillo.width, bocadillo.height);
+                ctx.font = "15px Arial";
+                ctx.fillStyle = "black";
+                ctx.fillText("¡Bienvenido a monlab!", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 10 + this.height / 2.5,)
+                ctx.fillText(myGamePiece.name, bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 25 + this.height / 2.5,)
+                ctx.fillText("¿Quiere resgistrar a alguien?", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 40 + this.height / 2.5,)
+                ctx.fillText("Pulse \"E\"", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 55 + this.height / 2.5,)
+            }
+        }
+
 
     };
 
@@ -334,7 +345,7 @@ function collider(A0, A1, B0, B1) {
         ctx.lineTo(this.pointB.x, this.pointB.y);
         ctx.strokeStyle = this.color;
         ctx.lineWidth = this.lineWidth;
-        ctx.stroke();
+        //ctx.stroke();
         ctx.closePath();
     };
 }
@@ -346,7 +357,7 @@ function updateGameArea() {//funcion que llama al clear y update de sus respecti
     myGamePiece.multspeed = 2;
     myGamePiece.speedX = 0;
     myGamePiece.speedY = 0;
-    /* console.log(myGameArea.keys) */
+    //console.log(myGameArea.keys)
     if (myGameArea.keys && (myGameArea.keys[16])) { myGamePiece.multspeed = 4; }//shift
     if (myGameArea.keys && (myGameArea.keys[37] || myGameArea.keys[65])) { myGamePiece.speedX = -2 * myGamePiece.multspeed; }
     if (myGameArea.keys && (myGameArea.keys[39] || myGameArea.keys[68])) { myGamePiece.speedX = 2 * myGamePiece.multspeed; }
@@ -391,6 +402,7 @@ function updateGameArea() {//funcion que llama al clear y update de sus respecti
     
     puerta3.checkDistance();
     
+    secretaria.checkDistance();
 
     //secretaria.update();
     //escritorio.update();
@@ -411,7 +423,7 @@ function imagenFrame() {
 
 function leerTarjeta(codigo) {
 
-    if (myGameArea.keys && (myGameArea.keys[16])) {//substituir por la lectura 
+    if (myGameArea.keys && (myGameArea.keys[69])) {//substituir por la lectura 
         return true;
     } else {
         return false;
