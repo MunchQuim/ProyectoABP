@@ -1,5 +1,6 @@
 let myGamePiece;
 let colliderArray = [];
+let updateArray = [];
 function startGame() {
     myGameArea.start();//empieza la funcion de start en myGameArea(crea el fondo)
 
@@ -7,7 +8,7 @@ function startGame() {
         ancho: 120,
         alto: myGameArea.canvas.height
     };
-    alfombra = new component(alfMeds.ancho, alfMeds.alto, "./img/alfombra.png", (myGameArea.canvas.width / 2) - alfMeds.ancho / 2, myGameArea.canvas.height - alfMeds.alto)
+    alfombra = new bComponent(alfMeds.ancho, alfMeds.alto, "./img/alfombra.png", (myGameArea.canvas.width / 2) - alfMeds.ancho / 2, myGameArea.canvas.height - alfMeds.alto)
 
     let escritorioMeds = {
         ancho: 151 * 2,
@@ -50,21 +51,24 @@ function startGame() {
         ancho: 30,
         alto: 30
     }
-    puerta1 = new component(puertaMeds.ancho, puertaMeds.alto, "./img/puerta.png", 232, 121, puertaMeds.ancho, puertaMeds.alto, true)
-    sensor1 = new component(sensorMeds.ancho, sensorMeds.alto, "./img/lector.png", 322, 181,null,null, false, "lector")
-    sensor1.puerta = "laboratorio"
-    puerta2 = new component(puertaMeds.ancho, puertaMeds.alto, "./img/puerta.png", 638, 121, puertaMeds.ancho, puertaMeds.alto, true)
-    sensor2 = new component(sensorMeds.ancho, sensorMeds.alto, "./img/lector.png", 728, 181,null,null, false, "lector")
-    sensor2.puerta = "despacho del jefe"
-    puerta3 = new component(puertaMeds.ancho, puertaMeds.alto, "./img/puerta.png", 1044, 121, puertaMeds.ancho, puertaMeds.alto, true)
-    sensor3 = new component(sensorMeds.ancho, sensorMeds.alto, "./img/lector.png", 1134, 181,null,null, false, "lector")
-    sensor3.puerta = "oficinas"
+    puerta1 = new component(puertaMeds.ancho, puertaMeds.alto, "./img/puerta.png", 232, 120.9, puertaMeds.ancho, puertaMeds.alto, true, "puerta")
+    //sensor1 = new bComponent(sensorMeds.ancho, sensorMeds.alto, "./img/lector.png", 322, 181)
+    puerta1.puerta = "laboratorio"
+    puerta1.codigo = "1234"
+    puerta2 = new component(puertaMeds.ancho, puertaMeds.alto, "./img/puerta.png", 638, 120.9, puertaMeds.ancho, puertaMeds.alto, true, "puerta")
+    //sensor2 = new bComponent(sensorMeds.ancho, sensorMeds.alto, "./img/lector.png", 728, 181)
+    puerta2.puerta = "despacho del jefe"
+    puerta2.codigo = "4321"
+    puerta3 = new component(puertaMeds.ancho, puertaMeds.alto, "./img/puerta.png", 1044, 120.9, puertaMeds.ancho, puertaMeds.alto, true, "puerta")
+    //sensor3 = new bComponent(sensorMeds.ancho, sensorMeds.alto, "./img/lector.png", 1134, 181)
+    puerta3.puerta = "oficinas"
+    puerta3.codigo = "0000"
 
     let bocadilloMeds = {
         ancho: 170,
         alto: 120
     }
-    bocadillo = new component(bocadilloMeds.ancho, bocadilloMeds.alto, "./img/bocadillo.png")
+    bocadillo = new bComponent(bocadilloMeds.ancho, bocadilloMeds.alto, "./img/bocadillo.png")
 
 }
 
@@ -99,14 +103,16 @@ let myGameArea = {
     }
 
 }
-function component(width, height, imageSrc, x, y, cW, cH, movible,name) {
-
+function bComponent(width, height, imageSrc, x, y, cW, cH, movible, name) {
+    
     this.width = width;
     this.height = height;
     this.speedX = 0;
     this.speedY = 0;
     this.multspeed = 2;
     this.x = x;
+    this.xObjetivo = x - width;
+    this.activo = false;
     this.y = y;
     this.cW = cW;
     this.cH = cH;
@@ -115,6 +121,7 @@ function component(width, height, imageSrc, x, y, cW, cH, movible,name) {
     this.movible = movible;
     this.name = name
     this.puerta;
+    this.codigo;
     this.colliderPropio = [
         new collider(this.x, this.y, this.x, this.y + this.cH),//origen-vertical
         new collider(this.x, this.y, this.x + this.cW, this.y),//origen-horizontal
@@ -128,30 +135,42 @@ function component(width, height, imageSrc, x, y, cW, cH, movible,name) {
     this.col11 = {x: this.x + this.width, y: this.y + this.height}; //abajo derecha */
 
     this.checkDistance = function () {
-        if (this.name == "lector") {
-            let x1 = this.x + this.width / 2//punto medio del sensor
-            let y1 = this.y; //altura del personaje
+        if (this.name == "puerta") {
+            let x1 = this.x + this.width / 2//punto medio de la puerta
+            let y1 = this.y + this.height / 2; //altura de la puerta
             let x2 = myGamePiece.x + myGamePiece.width //punto medio del personaje
             let y2 = myGamePiece.y//altura del personaje
             let dX = x1 - x2;
             let dY = y1 - y2;
             let distancia = Math.sqrt(Math.pow(dX, 2) + Math.pow(dY, 2))
-            console.log(distancia)
-            if (distancia < 70 && myGamePiece.y > this.y + this.height/2) {
+            //console.log(distancia)
+            /* if (distancia < 70 && myGamePiece.y > this.y + this.height / 2 && !this.activo) {
                 ctx = myGameArea.context;
-                ctx.drawImage(bocadillo.image, this.x+this.width/2.5, this.y-bocadillo.height-5, bocadillo.width, bocadillo.height); 
+                ctx.drawImage(bocadillo.image, this.x + this.width * 1.1, this.y - bocadillo.height + this.height / 2.5, bocadillo.width, bocadillo.height);
                 ctx.font = "15px Arial";
                 ctx.fillStyle = "black";
-                ctx.fillText("¡Bienvenido a monlab!",bocadillo.width/20+this.x+this.width/2.5, this.y-bocadillo.height+15,)
-                ctx.fillText("Para entrar a",bocadillo.width/20+this.x+this.width/2.5, this.y-bocadillo.height+30,)
-                ctx.fillText(this.puerta,bocadillo.width/20+this.x+this.width/2.5, this.y-bocadillo.height+45,)
-                ctx.fillText("Porfavor acerque la",bocadillo.width/20+this.x+this.width/2.5, this.y-bocadillo.height+60,)
-                ctx.fillText("tarjeta al lector",bocadillo.width/20+this.x+this.width/2.5, this.y-bocadillo.height+75,)
-                
-                if(true){//condicion de recibir el json
+                ctx.fillText("¡Bienvenido a monlab!", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 20 + this.height / 2.5,)
+                ctx.fillText("Para entrar a", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 35 + this.height / 2.5,)
+                ctx.fillText("\"" + this.puerta + "\"", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 50 + this.height / 2.5,)
+                ctx.fillText("porfavor acerque la", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 65 + this.height / 2.5,)
+                ctx.fillText("tarjeta al lector", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 80 + this.height / 2.5,)
 
+                if (leerTarjeta()) {//condicion de recibir el json
+                    this.activo = true;
                 }
+
+            } */
+            /* if (this.activo && this.x != this.xObjetivo) {
+                this.speedX = -1;
+                this.newPos();
             }
+            if (this.x == this.xObjetivo){
+                let index = colliderArray.indexOf(this.colliderPropio)
+                if (index != -1){
+                    colliderArray.splice(index,1)
+                }
+            } */
+
         }
 
     };
@@ -179,7 +198,106 @@ function component(width, height, imageSrc, x, y, cW, cH, movible,name) {
         ctx = myGameArea.context;
         ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
     };
+    
+    this.newPos = function () {
+        this.x += this.speedX;
+        this.y += this.speedY;
+    };
+}
 
+function component(width, height, imageSrc, x, y, cW, cH, movible, name) {
+
+    this.width = width;
+    this.height = height;
+    this.speedX = 0;
+    this.speedY = 0;
+    this.multspeed = 2;
+    this.x = x;
+    this.xObjetivo = x - width;
+    this.activo = false;
+    this.y = y;
+    this.cW = cW;
+    this.cH = cH;
+    this.image = new Image();
+    this.image.src = imageSrc;
+    this.movible = movible;
+    this.name = name
+    this.puerta;
+    this.codigo;
+    this.colliderPropio = [
+        new collider(this.x, this.y, this.x, this.y + this.cH),//origen-vertical
+        new collider(this.x, this.y, this.x + this.cW, this.y),//origen-horizontal
+        new collider(this.x + this.cW, this.y + this.cH, this.x + this.cW, this.y),//destino-horizontal
+        new collider(this.x + this.cW, this.y + this.cH, this.x, this.y + this.cH)//destino-vertical
+    ];
+    colliderArray.push(this.colliderPropio);
+    /* this.col00 = {x: this.x, y: this.y};//arriba izquierda
+    this.col01 = {x: this.x + this.width, y: this.y};  //arriba derecha
+    this.col10 = {x: this.x, y: this.y + this.height}; // abaja izquierda
+    this.col11 = {x: this.x + this.width, y: this.y + this.height}; //abajo derecha */
+
+    this.checkDistance = function () {
+        if (this.name == "puerta") {
+            let x1 = this.x + this.width / 2//punto medio de la puerta
+            let y1 = this.y + this.height / 2; //altura de la puerta
+            let x2 = myGamePiece.x + myGamePiece.width/2 //punto medio del personaje
+            let y2 = myGamePiece.y//altura del personaje
+            let dX = x1 - x2;
+            let dY = y1 - y2;
+            let distancia = Math.sqrt(Math.pow(dX, 2) + Math.pow(dY, 2))
+            //console.log(distancia)
+            if (distancia < 70 && myGamePiece.y > this.y + this.height / 2 && !this.activo) {
+                ctx = myGameArea.context;
+                ctx.drawImage(bocadillo.image, this.x + this.width * 1.1, this.y - bocadillo.height-10 + this.height / 2.5, bocadillo.width, bocadillo.height);
+                ctx.font = "15px Arial";
+                ctx.fillStyle = "black";
+                ctx.fillText("¡Bienvenido a monlab!", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 10 + this.height / 2.5,)
+                ctx.fillText("Para entrar a", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 25 + this.height / 2.5,)
+                ctx.fillText("\"" + this.puerta + "\"", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 40 + this.height / 2.5,)
+                ctx.fillText("porfavor acerque la", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 55 + this.height / 2.5,)
+                ctx.fillText("tarjeta al lector", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 70 + this.height / 2.5,)
+
+                if (leerTarjeta()) {//condicion de recibir el json
+                    this.activo = true;
+                }
+
+            }
+            if (this.activo && this.x != this.xObjetivo) {
+                console.log(this.xObjetivo+" "+this.x)
+                this.speedX = -1;
+            }
+            if (this.x == this.xObjetivo){
+                this.speedX = 0;
+                let index = colliderArray.indexOf(this.colliderPropio)
+                if (index != -1){
+                    colliderArray.splice(index,1)
+                }
+            }
+
+        }
+
+    };
+
+
+    this.update = function () {
+        if (this.movible) {
+            let newColliderPropio = [
+                new collider(this.x, this.y, this.x, this.y + cH),//origen-vertical
+                new collider(this.x, this.y, this.x + cW, this.y),//origen-horizontal
+                new collider(this.x + cW, this.y + cH, this.x + cW, this.y),//destino-horizontal
+                new collider(this.x + cW, this.y + cH, this.x, this.y + cH)//destino-vertical
+            ]
+            let index = colliderArray.indexOf(this.colliderPropio)
+            //console.log(colliderArray.indexOf(this.colliderPropio))
+            if (index !== -1) {
+                colliderArray[index] = newColliderPropio;
+                this.colliderPropio = newColliderPropio;
+            }
+        }
+        ctx = myGameArea.context;
+        ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+    };
+    updateArray.push(this);
     this.newPos = function () {
         this.x += this.speedX;
         this.y += this.speedY;
@@ -216,7 +334,7 @@ function collider(A0, A1, B0, B1) {
         ctx.lineTo(this.pointB.x, this.pointB.y);
         ctx.strokeStyle = this.color;
         ctx.lineWidth = this.lineWidth;
-        //ctx.stroke();
+        ctx.stroke();
         ctx.closePath();
     };
 }
@@ -238,19 +356,18 @@ function updateGameArea() {//funcion que llama al clear y update de sus respecti
 
     alfombra.update();
 
-    puerta1.update();
+    //puerta1.update();
     //acttualizar los colliders segun la posicion de la puerta
-    puerta2.update();
-    puerta3.update();
+    //puerta2.update();
+    //puerta3.update();
 
-    myWall.update();
+    //myWall.update();
 
-    sensor1.update();
-    sensor1.checkDistance();
-    sensor2.update();
-    sensor2.checkDistance();
-    sensor3.update();
-    sensor3.checkDistance();
+    
+    
+    
+    updateArray.sort(function(a, b){return ((a.y+a.height) - (b.y+b.height))});
+
     colliderArray.forEach(element => {
         element.forEach(subElement => {
             subElement.draw();
@@ -259,15 +376,28 @@ function updateGameArea() {//funcion que llama al clear y update de sus respecti
 
     });
 
+    updateArray.forEach(element => {
+        
+        element.newPos();
+        element.update();
+        //element.checkDistance();
+    });
+    //sensor1.update();
+    //sensor2.update();
+    //sensor3.update();
+    puerta1.checkDistance();
+    
+    puerta2.checkDistance();
+    
+    puerta3.checkDistance();
+    
 
-    //console.log(sensor1.image.src)
+    //secretaria.update();
+    //escritorio.update();
+    //myGamePiece.newPos();
+    //myGamePiece.update();
 
-    secretaria.update();
-    escritorio.update();
-    myGamePiece.newPos();
-    myGamePiece.update();
 
-    // ponerlo como equivalente a check collision pero en un objeto
 
 }
 function imagenFrame() {
@@ -279,9 +409,13 @@ function imagenFrame() {
     secretaria.image.src = "img/secretaria/secre" + secretariaspr + ".png"
 }
 
-function leerTarjeta() {
+function leerTarjeta(codigo) {
 
-
+    if (myGameArea.keys && (myGameArea.keys[16])) {//substituir por la lectura 
+        return true;
+    } else {
+        return false;
+    }
 }
 
 
