@@ -28,7 +28,7 @@ app.get('/get', async (req, res) => {  // en este caso   recibiremos un json de 
 
     try {
         const connection = await oracledb.getConnection(dbConfig);
-        const result = await connection.execute('SELECT * from quimcitos');
+        const result = await connection.execute('select * from "Departamentos" d join "Empleados" e on d."id_dept" = e.\"id_dept\"');
         res.json(result.rows);
     } catch (error) {
         console.error(error);
@@ -36,12 +36,90 @@ app.get('/get', async (req, res) => {  // en este caso   recibiremos un json de 
     }
 
 });
-app.get('/get/:id', async (req, res) => {
+app.get('/get/count', async (req, res) => {  // en este caso   recibiremos un json de la tabla empleados
+
+    try {
+        const connection = await oracledb.getConnection(dbConfig);
+        const result = await connection.execute('select count(*) from "Empleados"');
+        res.json(result.rows[0][0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error en el servidor' });
+    }
+
+});
+app.get('/get/id/:id', async (req, res) => {
     try {
         const connection = await oracledb.getConnection(dbConfig);
         const itemId = parseInt(req.params.id);
-        const result = await connection.execute('SELECT * from quimcitos where id = ' + itemId);
+        const result = await connection.execute(
+        'select * from "Departamentos" d join "Empleados" e on d."id_dept" = e.\"id_dept\" join "Cargos" c on c.\"id_cargo\" = e.\"id_cargo\"  WHERE \"id_empleado\" = :itemId', [itemId], { outFormat: oracledb.OUT_FORMAT_OBJECT });
         res.json(result.rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error en el servidor' });
+    }
+});
+app.get('/get/departamentos', async (req, res) => {  
+
+    try {
+        const connection = await oracledb.getConnection(dbConfig);
+        const result = await connection.execute('select * from "Departamentos"');
+        const columnNames = result.metaData.map(column => column.name);
+        
+        const rowsWithColumnNames = result.rows.map(row => {
+            const rowData = {};
+            row.forEach((value, index) => {
+                rowData[columnNames[index]] = value;
+            });
+            return rowData;
+        });
+    
+        res.json(rowsWithColumnNames);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error en el servidor' });
+    }
+
+});
+app.get('/get/permisos', async (req, res) => {  
+
+    try {
+        const connection = await oracledb.getConnection(dbConfig);
+        const result = await connection.execute('select * from "Rel_Permisos"');
+        const columnNames = result.metaData.map(column => column.name);
+        
+        const rowsWithColumnNames = result.rows.map(row => {
+            const rowData = {};
+            row.forEach((value, index) => {
+                rowData[columnNames[index]] = value;
+            });
+            return rowData;
+        });
+    
+        res.json(rowsWithColumnNames);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error en el servidor' });
+    }
+
+});
+app.get('/get/permisos/:id', async (req, res) => {
+    try {
+        const connection = await oracledb.getConnection(dbConfig);
+        const itemId = parseInt(req.params.id);
+        const result = await connection.execute('select r."id_dept",r."id_empleado",d."nombre_dept" from "Rel_Permisos" r join "Departamentos" d ON d."id_dept" = r."id_dept" where r."id_empleado" = '+itemId);
+        const columnNames = result.metaData.map(column => column.name);
+        
+        const rowsWithColumnNames = result.rows.map(row => {
+            const rowData = {};
+            row.forEach((value, index) => {
+                rowData[columnNames[index]] = value;
+            });
+            return rowData;
+        });
+    
+        res.json(rowsWithColumnNames);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Error en el servidor' });

@@ -2,16 +2,39 @@ let myGamePiece;
 let colliderArray = [];
 let updateArray = [];
 let nombre;
-
+let departamentos;
+let permisos;
+//let permisosId;
+var queryString = window.location.search;
+var urlParams = new URLSearchParams(queryString);
+let personaId = urlParams.get('id');
 async function recibirNombre(){
-    const response = await fetch('http://localhost:2727/name');
+    const response = await fetch('http://localhost:2727/get/id/'+personaId);
     const data = await response.json();
-    const nombre = data.Name;
-    return(nombre);
+    //console.log(data);
+    const nombre = data[0].nombre;
+    return(nombre); 
 }
-async function obtenerYMostrarNombre() {
+async function recibirDepartamentos() {
+    const response = await fetch('http://localhost:2727/get/departamentos');
+    const data = await response.json();
+    //console.log(data);
+    
+    return(data);
+}
+async function recibirPermisos(id) {
+    const response = await fetch('http://localhost:2727/get/permisos/'+id);
+    const data = await response.json();
+    //console.log(data);
+    
+    return(data);
+}
+async function recepcionesIniciales() {
     try {
         nombre = await recibirNombre();
+        departamentos = await recibirDepartamentos();
+        permisos = await recibirPermisos(personaId);
+
         startGame();
     } catch (error) {
         console.error('Error al obtener el nombre:', error);
@@ -20,7 +43,7 @@ async function obtenerYMostrarNombre() {
 
 function startGame() {
     myGameArea.start();//empieza la funcion de start en myGameArea(crea el fondo)
-    console.log(nombre);
+    console.log(permisos);
     let alfMeds = { //medidas de alfombra
         ancho: 120,
         alto: myGameArea.canvas.height
@@ -70,16 +93,16 @@ function startGame() {
     }
     puerta1 = new component(puertaMeds.ancho, puertaMeds.alto, "./img/puerta.png", 232, 120.9, puertaMeds.ancho, puertaMeds.alto, true, "puerta")
     //sensor1 = new bComponent(sensorMeds.ancho, sensorMeds.alto, "./img/lector.png", 322, 181)
-    puerta1.puerta = "laboratorio"
-    puerta1.codigo = "1234"
+    puerta1.puerta = departamentos[0].nombre_dept;
+    puerta1.codigo = departamentos[0].codigo_dept;
     puerta2 = new component(puertaMeds.ancho, puertaMeds.alto, "./img/puerta.png", 638, 120.9, puertaMeds.ancho, puertaMeds.alto, true, "puerta")
     //sensor2 = new bComponent(sensorMeds.ancho, sensorMeds.alto, "./img/lector.png", 728, 181)
-    puerta2.puerta = "despacho del jefe"
-    puerta2.codigo = "4321"
+    puerta2.puerta = departamentos[2].nombre_dept;
+    puerta2.codigo = departamentos[2].codigo_dept;
     puerta3 = new component(puertaMeds.ancho, puertaMeds.alto, "./img/puerta.png", 1044, 120.9, puertaMeds.ancho, puertaMeds.alto, true, "puerta")
     //sensor3 = new bComponent(sensorMeds.ancho, sensorMeds.alto, "./img/lector.png", 1134, 181)
-    puerta3.puerta = "oficinas"
-    puerta3.codigo = "0000"
+    puerta3.puerta = departamentos[1].nombre_dept;
+    puerta3.codigo = departamentos[1].codigo_dept;
 
     let bocadilloMeds = {
         ancho: 170,
@@ -247,13 +270,13 @@ function component(width, height, imageSrc, x, y, cW, cH, movible, name) {
                 ctx.fillText("porfavor acerque la", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 55 + this.height / 2.5,)
                 ctx.fillText("tarjeta al lector", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 70 + this.height / 2.5,)
 
-                if (leerTarjeta()) {//condicion de recibir el json
+                if (leerTarjeta(this.puerta)) {//condicion de recibir el json
                     this.activo = true;
                 }
 
             }
             if (this.activo && this.x != this.xObjetivo) {
-                console.log(this.xObjetivo+" "+this.x)
+                //console.log(this.xObjetivo+" "+this.x)
                 this.speedX = -1;
             }
             if (this.x == this.xObjetivo){
@@ -422,12 +445,25 @@ function imagenFrame() {
 }
 
 function leerTarjeta(codigo) {
-
+    let retorno = false;
     if (myGameArea.keys && (myGameArea.keys[69])) {//substituir por la lectura 
-        return true;
-    } else {
-        return false;
+        permisos.forEach(element => {
+            /* console.log(codigo)
+            console.log(element.nombre_dept)
+            console.log(codigo == element.nombre_dept) */
+
+           if(codigo == element.nombre_dept){
+                retorno = true;
+           }
+        });
+       /*  if(permisos.nombre_dept = codigo){
+            
+            return true;
+        } */
+        
     }
+    return retorno;
+    
 }
 
 
