@@ -30,8 +30,15 @@ function imprimeFicha() {
     document.getElementById("apellido").innerHTML = datos[0].apellido;
     document.getElementById("departamento").innerHTML = datos[0].nombre_dept;
     document.getElementById("cargo").innerHTML = datos[0].nombre_cargo;
+    document.getElementById("portrait").src = datos[0].url_img;
+    if(datos[0].nombre_cargo == "Director"){
+        document.getElementById("body").style.backgroundImage = "url('./fichaTecnica/monlab_jefes.png')"
+    }else{
+        document.getElementById("body").style.backgroundImage = "url('./fichaTecnica/monlabfons.png')"
+    }
     document.getElementById("correo").innerHTML = datos[0].correo;
     document.getElementById("telefono").innerHTML = datos[0].telefono;
+    document.getElementById("id").innerHTML = datos[0].tarjeta
     document.getElementById("dni").innerHTML = datos[0].DNI;
 }
 function zonaTrabajo(id) {

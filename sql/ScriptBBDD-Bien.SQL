@@ -57,7 +57,9 @@ CREATE TABLE "Empleados"(
   "salario" Float NOT NULL,
   "id_cargo" Varchar2(5 ) NOT NULL,
   "id_jefe" Integer,
-  "id_dept" Integer
+  "id_dept" Integer,
+  "url_img" Varchar2(50) default './img/users/chad.jpg',
+  "tarjeta" Varchar2(50) default ''
 )
 /
 
@@ -238,7 +240,9 @@ INSERT INTO "Empleados" VALUES (seq_empleados_id_empleado.nextval,
                                 '1000000', 
                                 (SELECT "id_cargo" FROM "Cargos" WHERE "nombre_cargo" = 'Director'),
                                 '',
-                                (SELECT "id_dept" FROM "Departamentos" WHERE "nombre_dept" = 'Direccion')
+                                (SELECT "id_dept" FROM "Departamentos" WHERE "nombre_dept" = 'Direccion'),
+                                default,
+                                '[3, 189, 217, 4, 99]'
                                 );
                                 
 INSERT INTO "Empleados" VALUES (seq_empleados_id_empleado.nextval, --id
@@ -250,7 +254,9 @@ INSERT INTO "Empleados" VALUES (seq_empleados_id_empleado.nextval, --id
                                 '250000', --salario
                                 (SELECT "id_cargo" FROM "Cargos" WHERE "nombre_cargo" = 'Investigador senior'), --cargo
                                 (SELECT "id_empleado" FROM "Empleados" WHERE "nombre"||' '||"apellido" = 'David Girbau'), --jefe
-                                (SELECT "id_dept" FROM "Departamentos" WHERE "nombre_dept" = 'Laboratorio') --departamento
+                                (SELECT "id_dept" FROM "Departamentos" WHERE "nombre_dept" = 'Laboratorio'), --departamento
+                                './img/users/PinedaImg.png',
+                                '[132, 201, 154, 138, 93]'
                                 );
                                 
 INSERT INTO "Empleados" VALUES (seq_empleados_id_empleado.nextval, 
@@ -262,7 +268,9 @@ INSERT INTO "Empleados" VALUES (seq_empleados_id_empleado.nextval,
                                 '200000', 
                                 (SELECT "id_cargo" FROM "Cargos" WHERE "nombre_cargo" = 'Administrativo'),
                                 (SELECT "id_empleado" FROM "Empleados" WHERE "nombre"||' '||"apellido" = 'David Girbau'),
-                                (SELECT "id_dept" FROM "Departamentos" WHERE "nombre_dept" = 'Administracion')
+                                (SELECT "id_dept" FROM "Departamentos" WHERE "nombre_dept" = 'Administracion'),
+                                default,
+                                '[170, 206, 138, 132, 106]'
                                 );
                                 
 INSERT INTO "Empleados" VALUES (seq_empleados_id_empleado.nextval, 
@@ -274,7 +282,9 @@ INSERT INTO "Empleados" VALUES (seq_empleados_id_empleado.nextval,
                                 '150000', 
                                 (SELECT "id_cargo" FROM "Cargos" WHERE "nombre_cargo" = 'Investigador junior'),
                                 (SELECT "id_empleado" FROM "Empleados" WHERE "nombre"||' '||"apellido" = 'Joaquim Pineda'),
-                                (SELECT "id_dept" FROM "Departamentos" WHERE "nombre_dept" = 'Laboratorio')
+                                (SELECT "id_dept" FROM "Departamentos" WHERE "nombre_dept" = 'Laboratorio'),
+                                default,
+                                '[58, 183, 210, 133, 218]'
                                 );
                                 
 INSERT INTO "Empleados" VALUES (seq_empleados_id_empleado.nextval, 
@@ -286,7 +296,9 @@ INSERT INTO "Empleados" VALUES (seq_empleados_id_empleado.nextval,
                                 '100000', 
                                 (SELECT "id_cargo" FROM "Cargos" WHERE "nombre_cargo" = 'Investigador junior'),
                                 (SELECT "id_empleado" FROM "Empleados" WHERE "nombre"||' '||"apellido" = 'Joaquim Pineda'),
-                                (SELECT "id_dept" FROM "Departamentos" WHERE "nombre_dept" = 'Laboratorio')
+                                (SELECT "id_dept" FROM "Departamentos" WHERE "nombre_dept" = 'Laboratorio'),
+                                default,
+                                '[170, 59, 53, 102, 194]'
                                 );
                                 
 INSERT INTO "Empleados" VALUES (seq_empleados_id_empleado.nextval, 
@@ -298,7 +310,9 @@ INSERT INTO "Empleados" VALUES (seq_empleados_id_empleado.nextval,
                                 '50000', 
                                 (SELECT "id_cargo" FROM "Cargos" WHERE "nombre_cargo" = 'Administrativo'),
                                 (SELECT "id_empleado" FROM "Empleados" WHERE "nombre"||' '||"apellido" = 'Oscar Quintanilla'),
-                                (SELECT "id_dept" FROM "Departamentos" WHERE "nombre_dept" = 'Administracion')
+                                (SELECT "id_dept" FROM "Departamentos" WHERE "nombre_dept" = 'Administracion'),
+                                default,
+                                default
                                 );
                                 
 INSERT INTO "Empleados" VALUES (seq_empleados_id_empleado.nextval, 
@@ -310,7 +324,9 @@ INSERT INTO "Empleados" VALUES (seq_empleados_id_empleado.nextval,
                                 '120000', 
                                 (SELECT "id_cargo" FROM "Cargos" WHERE "nombre_cargo" = 'Administrativo'),
                                 (SELECT "id_empleado" FROM "Empleados" WHERE "nombre"||' '||"apellido" = 'Oscar Quintanilla'),
-                                (SELECT "id_dept" FROM "Departamentos" WHERE "nombre_dept" = 'Administracion')
+                                (SELECT "id_dept" FROM "Departamentos" WHERE "nombre_dept" = 'Administracion'),
+                                default,
+                                default
                                 );
                                 
 
@@ -340,16 +356,20 @@ commit;
 /
 DECLARE
     CURSOR c_pineda_cur is
-    SELECT e."id_dept", e."id_empleado", d."nombre_dept" from "Empleados" e
-    join "Departamentos" d on d."id_dept" = e."id_dept";
+    SELECT e."id_dept", e."id_empleado", d."nombre_dept",c."nombre_cargo" from "Empleados" e
+    join "Departamentos" d on d."id_dept" = e."id_dept"
+    join "Cargos" c on c."id_cargo" = e."id_cargo"; 
     --x employees%rowtype;
 BEGIN 
-    FOR registro IN c_pineda_cur LOOP
-        dbms_output.put_line (registro."id_dept");
-        if registro."nombre_dept"='Direccion' then
+    FOR registro IN c_pineda_cur LOOP 
+        dbms_output.put_line (registro."id_empleado"||' '|| registro."nombre_cargo");
+        if registro."nombre_cargo"='Director' then
             insert into "Rel_Permisos" values (1,registro."id_empleado");
             insert into "Rel_Permisos" values (2,registro."id_empleado");
             insert into "Rel_Permisos" values (3,registro."id_empleado");
+        elsif registro."nombre_cargo"='Investigador senior' then
+            insert into "Rel_Permisos" values ((select "id_dept" from "Departamentos" where "nombre_dept" = 'Direccion'),registro."id_empleado");
+            insert into "Rel_Permisos" values ((select "id_dept" from "Departamentos" where "nombre_dept" = 'Laboratorio'),registro."id_empleado");
         else
             insert into "Rel_Permisos" values (registro."id_dept",registro."id_empleado");
         end if;

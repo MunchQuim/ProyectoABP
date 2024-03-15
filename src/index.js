@@ -86,7 +86,7 @@ app.get('/get/permisos', async (req, res) => {
 
     try {
         const connection = await oracledb.getConnection(dbConfig);
-        const result = await connection.execute('select * from "Rel_Permisos"');
+        const result = await connection.execute('select r."id_dept", d."nombre_dept",e."tarjeta" from "Rel_Permisos" r JOIN "Empleados" e on e."id_empleado" = r."id_empleado" join "Departamentos" d on d."id_dept" = r."id_dept"');
         const columnNames = result.metaData.map(column => column.name);
         
         const rowsWithColumnNames = result.rows.map(row => {

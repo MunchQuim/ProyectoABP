@@ -1,19 +1,21 @@
 let myGamePiece;
 let colliderArray = [];
 let updateArray = [];
+let datos;
 let nombre;
+let imagen;
 let departamentos;
 let permisos;
 //let permisosId;
 var queryString = window.location.search;
 var urlParams = new URLSearchParams(queryString);
 let personaId = urlParams.get('id');
-async function recibirNombre(){
+async function recibirDatos(){
     const response = await fetch('http://localhost:2727/get/id/'+personaId);
     const data = await response.json();
     //console.log(data);
-    const nombre = data[0].nombre;
-    return(nombre); 
+    const datos = data[0];
+    return(datos); 
 }
 async function recibirDepartamentos() {
     const response = await fetch('http://localhost:2727/get/departamentos');
@@ -23,7 +25,7 @@ async function recibirDepartamentos() {
     return(data);
 }
 async function recibirPermisos(id) {
-    const response = await fetch('http://localhost:2727/get/permisos/'+id);
+    const response = await fetch('http://localhost:2727/get/permisos');
     const data = await response.json();
     //console.log(data);
     
@@ -31,10 +33,12 @@ async function recibirPermisos(id) {
 }
 async function recepcionesIniciales() {
     try {
-        nombre = await recibirNombre();
+        datos = await recibirDatos();
+        nombre = datos.nombre;
+        imagen = datos.url_img;
         departamentos = await recibirDepartamentos();
-        permisos = await recibirPermisos(personaId);
-
+        permisos = await recibirPermisos();
+        //console.log(permisos);
         startGame();
     } catch (error) {
         console.error('Error al obtener el nombre:', error);
@@ -43,7 +47,7 @@ async function recepcionesIniciales() {
 
 function startGame() {
     myGameArea.start();//empieza la funcion de start en myGameArea(crea el fondo)
-    console.log(permisos);
+    //console.log(permisos);
     let alfMeds = { //medidas de alfombra
         ancho: 120,
         alto: myGameArea.canvas.height
@@ -80,7 +84,7 @@ function startGame() {
         ancho: 60,
         alto: 90
     }
-    myGamePiece = new component(charMeds.ancho, charMeds.alto, "./img/chad.jpg", (myGameArea.canvas.width / 2) - charMeds.ancho / 2, myGameArea.canvas.height - charMeds.alto);// crea un objeto tipo component (width,heigh, color, posicionx, posiciony)
+    myGamePiece = new component(charMeds.ancho, charMeds.alto,imagen, (myGameArea.canvas.width / 2) - charMeds.ancho / 2, myGameArea.canvas.height - charMeds.alto);// crea un objeto tipo component (width,heigh, color, posicionx, posiciony)
     //(myGameArea.canvas.width/2)-charMeds.ancho/2 ,myGameArea.canvas.height-charMeds.alto
     myGamePiece.name = nombre;
     let puertaMeds = {
@@ -94,15 +98,22 @@ function startGame() {
     puerta1 = new component(puertaMeds.ancho, puertaMeds.alto, "./img/puerta.png", 232, 120.9, puertaMeds.ancho, puertaMeds.alto, true, "puerta")
     //sensor1 = new bComponent(sensorMeds.ancho, sensorMeds.alto, "./img/lector.png", 322, 181)
     puerta1.puerta = departamentos[0].nombre_dept;
-    puerta1.codigo = departamentos[0].codigo_dept;
+    puerta1.recibirCodigos();
+    console.log(puerta1.puerta+": "+puerta1.codigo)
+
     puerta2 = new component(puertaMeds.ancho, puertaMeds.alto, "./img/puerta.png", 638, 120.9, puertaMeds.ancho, puertaMeds.alto, true, "puerta")
     //sensor2 = new bComponent(sensorMeds.ancho, sensorMeds.alto, "./img/lector.png", 728, 181)
     puerta2.puerta = departamentos[2].nombre_dept;
-    puerta2.codigo = departamentos[2].codigo_dept;
+    puerta2.recibirCodigos();
+    console.log(puerta2.puerta+": "+puerta2.codigo)
+
     puerta3 = new component(puertaMeds.ancho, puertaMeds.alto, "./img/puerta.png", 1044, 120.9, puertaMeds.ancho, puertaMeds.alto, true, "puerta")
     //sensor3 = new bComponent(sensorMeds.ancho, sensorMeds.alto, "./img/lector.png", 1134, 181)
     puerta3.puerta = departamentos[1].nombre_dept;
-    puerta3.codigo = departamentos[1].codigo_dept;
+    puerta3.recibirCodigos();
+    console.log(puerta3.puerta+": "+puerta3.codigo)
+
+    
 
     let bocadilloMeds = {
         ancho: 170,
@@ -161,7 +172,7 @@ function bComponent(width, height, imageSrc, x, y, cW, cH, movible, name) {
     this.movible = movible;
     this.name = name
     this.puerta;
-    this.codigo;
+    this.codigo = [];
     this.colliderPropio = [
         new collider(this.x, this.y, this.x, this.y + this.cH),//origen-vertical
         new collider(this.x, this.y, this.x + this.cW, this.y),//origen-horizontal
@@ -236,7 +247,7 @@ function component(width, height, imageSrc, x, y, cW, cH, movible, name) {
     this.movible = movible;
     this.name = name
     this.puerta;
-    this.codigo;
+    this.codigo = [];
     this.colliderPropio = [
         new collider(this.x, this.y, this.x, this.y + this.cH),//origen-vertical
         new collider(this.x, this.y, this.x + this.cW, this.y),//origen-horizontal
@@ -336,6 +347,14 @@ function component(width, height, imageSrc, x, y, cW, cH, movible, name) {
         this.x += this.speedX;
         this.y += this.speedY;
     };
+    this.recibirCodigos = function() {
+        permisos.forEach(element => {
+            if(element.nombre_dept == this.puerta){
+                this.codigo.push(element.tarjeta);
+            };
+            
+        });
+    }
 
 }
 function collider(A0, A1, B0, B1) {
