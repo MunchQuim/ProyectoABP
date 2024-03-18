@@ -1,5 +1,7 @@
 let numero;
 let datos;
+let ids;
+let index = 0;
 async function recibirRegistros(){
     const response = await fetch('http://localhost:2727/get/count');
     const data = await response.json();
@@ -14,10 +16,18 @@ async function recibirDatos(id){
     const datos = data;
     return(datos); 
 }
+async function recibirIds(){
+    const response = await fetch('http://localhost:2727/get/allId/');
+    const data = await response.json();
+    //console.log(data);
+    const datos = data;
+    return(datos); 
+}
 async function recepcionesIniciales() {
     try {
         numero = await recibirRegistros();
-        datos = await recibirDatos(1);
+        ids = await recibirIds();
+        datos = await recibirDatos(ids[index][0]);
         console.log(datos[0].id_empleado)
         imprimeFicha();
     } catch (error) {
@@ -44,17 +54,18 @@ function imprimeFicha() {
 function zonaTrabajo(id) {
     window.location.href = "../zonaTrabajo.html?id=" + encodeURIComponent(id)
 }
-async function cambio(num) {
-    console.log("hola")
-    if (num <1){
-        num = numero;
+async function cambio(suma) {
+    console.log(index)
+    index += suma;
+    if (index <0){
+        index = numero-1;
     }
-    else if (num > numero){
-        num = 1;
+    else if (index > numero-1){
+        index = 0;
     }
-    datos = await recibirDatos(num);
+    datos = await recibirDatos(ids[index][0]);
     imprimeFicha();
 }
-document.getElementById("btn").addEventListener("click",function () {zonaTrabajo(datos[0].id_empleado); });
-document.getElementById("btnIz").addEventListener("click",function () {cambio(datos[0].id_empleado -1); });
-document.getElementById("btnDer").addEventListener("click",function () {cambio(datos[0].id_empleado +1); });
+document.getElementById("btn").addEventListener("click",function () {zonaTrabajo(ids[index][0]); });
+document.getElementById("btnIz").addEventListener("click",function () {cambio(-1); });
+document.getElementById("btnDer").addEventListener("click",function () {cambio(+1); });

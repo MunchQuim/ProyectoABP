@@ -36,6 +36,35 @@ app.get('/get', async (req, res) => {  // en este caso   recibiremos un json de 
     }
 
 });
+
+app.get('/data', (req, res) => {
+    // Lee el archivo JSON local
+    console.log("hola")
+    try {
+        // Cargar el archivo JSON local
+        const jsonData = fs.readFileSync('../lectura/card_id.json', 'utf8');
+        const data = JSON.parse(jsonData);
+    
+        // Devolver los datos en la respuesta
+        res.json(data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error en el servidor' });
+    }
+});
+
+app.get('/get/allId', async (req, res) => {  // en este caso   recibiremos un json de la tabla empleados
+
+    try {
+        const connection = await oracledb.getConnection(dbConfig);
+        const result = await connection.execute('select "id_empleado" from "Empleados"');
+        res.json(result.rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error en el servidor' });
+    }
+
+});
 app.get('/get/count', async (req, res) => {  // en este caso   recibiremos un json de la tabla empleados
 
     try {

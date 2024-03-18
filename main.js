@@ -10,26 +10,26 @@ let permisos;
 var queryString = window.location.search;
 var urlParams = new URLSearchParams(queryString);
 let personaId = urlParams.get('id');
-async function recibirDatos(){
-    const response = await fetch('http://localhost:2727/get/id/'+personaId);
+async function recibirDatos() {
+    const response = await fetch('http://localhost:2727/get/id/' + personaId);
     const data = await response.json();
     //console.log(data);
     const datos = data[0];
-    return(datos); 
+    return (datos);
 }
 async function recibirDepartamentos() {
     const response = await fetch('http://localhost:2727/get/departamentos');
     const data = await response.json();
     //console.log(data);
-    
-    return(data);
+
+    return (data);
 }
 async function recibirPermisos(id) {
     const response = await fetch('http://localhost:2727/get/permisos');
     const data = await response.json();
     //console.log(data);
-    
-    return(data);
+
+    return (data);
 }
 async function recepcionesIniciales() {
     try {
@@ -84,7 +84,7 @@ function startGame() {
         ancho: 60,
         alto: 90
     }
-    myGamePiece = new component(charMeds.ancho, charMeds.alto,imagen, (myGameArea.canvas.width / 2) - charMeds.ancho / 2, myGameArea.canvas.height - charMeds.alto);// crea un objeto tipo component (width,heigh, color, posicionx, posiciony)
+    myGamePiece = new component(charMeds.ancho, charMeds.alto, imagen, (myGameArea.canvas.width / 2) - charMeds.ancho / 2, myGameArea.canvas.height - charMeds.alto);// crea un objeto tipo component (width,heigh, color, posicionx, posiciony)
     //(myGameArea.canvas.width/2)-charMeds.ancho/2 ,myGameArea.canvas.height-charMeds.alto
     myGamePiece.name = nombre;
     let puertaMeds = {
@@ -99,21 +99,21 @@ function startGame() {
     //sensor1 = new bComponent(sensorMeds.ancho, sensorMeds.alto, "./img/lector.png", 322, 181)
     puerta1.puerta = departamentos[0].nombre_dept;
     puerta1.recibirCodigos();
-    console.log(puerta1.puerta+": "+puerta1.codigo)
+    console.log(puerta1.puerta + ": " + puerta1.codigo)
 
     puerta2 = new component(puertaMeds.ancho, puertaMeds.alto, "./img/puerta.png", 638, 120.9, puertaMeds.ancho, puertaMeds.alto, true, "puerta")
     //sensor2 = new bComponent(sensorMeds.ancho, sensorMeds.alto, "./img/lector.png", 728, 181)
     puerta2.puerta = departamentos[2].nombre_dept;
     puerta2.recibirCodigos();
-    console.log(puerta2.puerta+": "+puerta2.codigo)
+    console.log(puerta2.puerta + ": " + puerta2.codigo)
 
     puerta3 = new component(puertaMeds.ancho, puertaMeds.alto, "./img/puerta.png", 1044, 120.9, puertaMeds.ancho, puertaMeds.alto, true, "puerta")
     //sensor3 = new bComponent(sensorMeds.ancho, sensorMeds.alto, "./img/lector.png", 1134, 181)
     puerta3.puerta = departamentos[1].nombre_dept;
     puerta3.recibirCodigos();
-    console.log(puerta3.puerta+": "+puerta3.codigo)
+    console.log(puerta3.puerta + ": " + puerta3.codigo)
 
-    
+
 
     let bocadilloMeds = {
         ancho: 170,
@@ -155,7 +155,7 @@ let myGameArea = {
 
 }
 function bComponent(width, height, imageSrc, x, y, cW, cH, movible, name) {
-    
+
     this.width = width;
     this.height = height;
     this.speedX = 0;
@@ -185,21 +185,6 @@ function bComponent(width, height, imageSrc, x, y, cW, cH, movible, name) {
     this.col10 = {x: this.x, y: this.y + this.height}; // abaja izquierda
     this.col11 = {x: this.x + this.width, y: this.y + this.height}; //abajo derecha */
 
-    this.checkDistance = function () {
-        if (this.name == "puerta") {
-            let x1 = this.x + this.width / 2//punto medio de la puerta
-            let y1 = this.y + this.height / 2; //altura de la puerta
-            let x2 = myGamePiece.x + myGamePiece.width //punto medio del personaje
-            let y2 = myGamePiece.y//altura del personaje
-            let dX = x1 - x2;
-            let dY = y1 - y2;
-            let distancia = Math.sqrt(Math.pow(dX, 2) + Math.pow(dY, 2))
-
-        }
-
-    };
-
-
     this.update = function () {
         if (this.movible) {
             let newColliderPropio = [
@@ -222,7 +207,7 @@ function bComponent(width, height, imageSrc, x, y, cW, cH, movible, name) {
         ctx = myGameArea.context;
         ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
     };
-    
+
     this.newPos = function () {
         this.x += this.speedX;
         this.y += this.speedY;
@@ -264,7 +249,7 @@ function component(width, height, imageSrc, x, y, cW, cH, movible, name) {
         if (this.name == "puerta") {
             let x1 = this.x + this.width / 2//punto medio de la puerta
             let y1 = this.y + this.height / 2; //altura de la puerta
-            let x2 = myGamePiece.x + myGamePiece.width/2 //punto medio del personaje
+            let x2 = myGamePiece.x + myGamePiece.width / 2 //punto medio del personaje
             let y2 = myGamePiece.y//altura del personaje
             let dX = x1 - x2;
             let dY = y1 - y2;
@@ -272,7 +257,7 @@ function component(width, height, imageSrc, x, y, cW, cH, movible, name) {
             //console.log(distancia)
             if (distancia < 70 && myGamePiece.y > this.y + this.height / 2 && !this.activo) {
                 ctx = myGameArea.context;
-                ctx.drawImage(bocadillo.image, this.x + this.width * 1.1, this.y - bocadillo.height-10 + this.height / 2.5, bocadillo.width, bocadillo.height);
+                ctx.drawImage(bocadillo.image, this.x + this.width * 1.1, this.y - bocadillo.height - 10 + this.height / 2.5, bocadillo.width, bocadillo.height);
                 ctx.font = "15px Arial";
                 ctx.fillStyle = "black";
                 ctx.fillText("¡Bienvenido a monlab!", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 10 + this.height / 2.5,)
@@ -280,21 +265,25 @@ function component(width, height, imageSrc, x, y, cW, cH, movible, name) {
                 ctx.fillText("\"" + this.puerta + "\"", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 40 + this.height / 2.5,)
                 ctx.fillText("porfavor acerque la", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 55 + this.height / 2.5,)
                 ctx.fillText("tarjeta al lector", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 70 + this.height / 2.5,)
+                console.log(leerTarjeta(this.codigo));
 
-                if (leerTarjeta(this.puerta)) {//condicion de recibir el json
+                 
+                
+                
+                /* if (leerTarjeta(this.codigo)) {//condicion de recibir el json
                     this.activo = true;
-                }
+                } */
 
             }
             if (this.activo && this.x != this.xObjetivo) {
                 //console.log(this.xObjetivo+" "+this.x)
                 this.speedX = -1;
             }
-            if (this.x == this.xObjetivo){
+            if (this.x == this.xObjetivo) {
                 this.speedX = 0;
                 let index = colliderArray.indexOf(this.colliderPropio)
-                if (index != -1){
-                    colliderArray.splice(index,1)
+                if (index != -1) {
+                    colliderArray.splice(index, 1)
                 }
             }
 
@@ -302,15 +291,15 @@ function component(width, height, imageSrc, x, y, cW, cH, movible, name) {
         else if (this.name == "secretaria") {
             let x1 = this.x + this.width / 2//punto medio de la puerta
             let y1 = this.y + this.height / 2; //altura de la puerta
-            let x2 = myGamePiece.x + myGamePiece.width/2 //punto medio del personaje
+            let x2 = myGamePiece.x + myGamePiece.width / 2 //punto medio del personaje
             let y2 = myGamePiece.y//altura del personaje
             let dX = x1 - x2;
             let dY = y1 - y2;
             let distancia = Math.sqrt(Math.pow(dX, 2) + Math.pow(dY, 2))
             //console.log(distancia)
-            if (distancia < 100 && myGamePiece.y > this.y + this.height / 2){
+            if (distancia < 100 && myGamePiece.y > this.y + this.height / 2) {
                 ctx = myGameArea.context;
-                ctx.drawImage(bocadillo.image, this.x + this.width * 1.1, this.y - bocadillo.height-10 + this.height / 2.5, bocadillo.width, bocadillo.height);
+                ctx.drawImage(bocadillo.image, this.x + this.width * 1.1, this.y - bocadillo.height - 10 + this.height / 2.5, bocadillo.width, bocadillo.height);
                 ctx.font = "15px Arial";
                 ctx.fillStyle = "black";
                 ctx.fillText("¡Bienvenido a monlab!", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 10 + this.height / 2.5,)
@@ -347,12 +336,12 @@ function component(width, height, imageSrc, x, y, cW, cH, movible, name) {
         this.x += this.speedX;
         this.y += this.speedY;
     };
-    this.recibirCodigos = function() {
+    this.recibirCodigos = function () {
         permisos.forEach(element => {
-            if(element.nombre_dept == this.puerta){
+            if (element.nombre_dept == this.puerta) {
                 this.codigo.push(element.tarjeta);
             };
-            
+
         });
     }
 
@@ -416,10 +405,10 @@ function updateGameArea() {//funcion que llama al clear y update de sus respecti
 
     //myWall.update();
 
-    
-    
-    
-    updateArray.sort(function(a, b){return ((a.y+a.height) - (b.y+b.height))});
+
+
+
+    updateArray.sort(function (a, b) { return ((a.y + a.height) - (b.y + b.height)) });
 
     colliderArray.forEach(element => {
         element.forEach(subElement => {
@@ -430,7 +419,7 @@ function updateGameArea() {//funcion que llama al clear y update de sus respecti
     });
 
     updateArray.forEach(element => {
-        
+
         element.newPos();
         element.update();
         //element.checkDistance();
@@ -439,11 +428,11 @@ function updateGameArea() {//funcion que llama al clear y update de sus respecti
     //sensor2.update();
     //sensor3.update();
     puerta1.checkDistance();
-    
+
     puerta2.checkDistance();
-    
+
     puerta3.checkDistance();
-    
+
     secretaria.checkDistance();
 
     //secretaria.update();
@@ -463,26 +452,28 @@ function imagenFrame() {
     secretaria.image.src = "img/secretaria/secre" + secretariaspr + ".png"
 }
 
-function leerTarjeta(codigo) {
-    let retorno = false;
-    if (myGameArea.keys && (myGameArea.keys[69])) {//substituir por la lectura 
-        permisos.forEach(element => {
-            /* console.log(codigo)
-            console.log(element.nombre_dept)
-            console.log(codigo == element.nombre_dept) */
-
-           if(codigo == element.nombre_dept){
-                retorno = true;
-           }
+async function leerTarjeta(codigos) {
+    let respuesta = false;
+    try {
+        const response = await fetch('http://localhost:2728/data');
+        if (!response.ok) {
+            throw new Error('No se pudo obtener el JSON');
+        }
+        const jsonData = await response.json();
+        //console.log(jsonData.card_id);
+        codigos.forEach(element => {
+            if (element == jsonData.card_id){
+                respuesta = true;
+                
+            }
         });
-       /*  if(permisos.nombre_dept = codigo){
-            
-            return true;
-        } */
+        if(respuesta){};
         
+    } catch (error) {
+        console.error(error);
+        throw new Error('Error al obtener los datos JSON');
     }
-    return retorno;
-    
+
 }
 
 
