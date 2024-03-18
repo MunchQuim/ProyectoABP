@@ -265,8 +265,8 @@ function component(width, height, imageSrc, x, y, cW, cH, movible, name) {
                 ctx.fillText("\"" + this.puerta + "\"", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 40 + this.height / 2.5,)
                 ctx.fillText("porfavor acerque la", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 55 + this.height / 2.5,)
                 ctx.fillText("tarjeta al lector", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 70 + this.height / 2.5,)
-                console.log(leerTarjeta(this.codigo));
-
+                //console.log(leerTarjeta(this.codigo));
+                this.lectura();
                  
                 
                 
@@ -311,7 +311,36 @@ function component(width, height, imageSrc, x, y, cW, cH, movible, name) {
 
 
     };
-
+    this.lectura = async function () {
+        let respuesta = false;
+        try {
+            const response = await fetch('http://localhost:2728/data');
+            if (!response.ok) {
+                throw new Error('No se pudo obtener el JSON');
+            }
+            const jsonData = await response.json();
+            //console.log(jsonData);
+            
+            this.codigo.forEach(element => {
+                
+                let recibido = "["+jsonData.card_id+"]";
+                console.log(element+": "+recibido);
+                if (element == recibido){
+                    console.log("hola");
+                    respuesta = true;
+                    
+                }
+            });
+            if(respuesta || myGameArea.keys[69]){
+                console.log("permiso condecido");
+                this.activo = true;
+            };
+            
+        } catch (error) {
+            console.error(error);
+            throw new Error('Error al obtener los datos JSON');
+        }
+    }
 
     this.update = function () {
         if (this.movible) {
@@ -453,26 +482,7 @@ function imagenFrame() {
 }
 
 async function leerTarjeta(codigos) {
-    let respuesta = false;
-    try {
-        const response = await fetch('http://localhost:2728/data');
-        if (!response.ok) {
-            throw new Error('No se pudo obtener el JSON');
-        }
-        const jsonData = await response.json();
-        //console.log(jsonData.card_id);
-        codigos.forEach(element => {
-            if (element == jsonData.card_id){
-                respuesta = true;
-                
-            }
-        });
-        if(respuesta){};
-        
-    } catch (error) {
-        console.error(error);
-        throw new Error('Error al obtener los datos JSON');
-    }
+    
 
 }
 
