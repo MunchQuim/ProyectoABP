@@ -18,12 +18,13 @@ app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', 'http://127.0.0.1:5500');
-    // Otros encabezados y configuraciones CORS según sea necesario
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
     next();
 });
 
-//Nuestro primer WS Get
+//todos los gets
 app.get('/get', async (req, res) => {  // en este caso   recibiremos un json de la tabla empleados
 
     try {
@@ -39,7 +40,6 @@ app.get('/get', async (req, res) => {  // en este caso   recibiremos un json de 
 
 app.get('/data', (req, res) => {
     // Lee el archivo JSON local
-    console.log("hola")
     try {
         // Cargar el archivo JSON local
         const jsonData = fs.readFileSync('../lectura/card_id.json', 'utf8');
@@ -71,6 +71,18 @@ app.get('/get/count', async (req, res) => {  // en este caso   recibiremos un js
         const connection = await oracledb.getConnection(dbConfig);
         const result = await connection.execute('select count(*) from "Empleados"');
         res.json(result.rows[0][0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error en el servidor' });
+    }
+
+});
+app.get('/get/horas', async (req, res) => {  // en este caso   recibiremos un json de la tabla empleados
+
+    try {
+        const connection = await oracledb.getConnection(dbConfig);
+        const result = await connection.execute('select e."nombre", d."nombre_dept", h."hora_entrada" from "Horas_entrada" h join "Empleados" e on e."id_empleado" = h."id_empleado" join "Departamentos" d on d."id_dept" = h."id_dept"');
+        res.json(result.rows);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Error en el servidor' });
@@ -154,6 +166,20 @@ app.get('/get/permisos/:id', async (req, res) => {
         res.status(500).json({ error: 'Error en el servidor' });
     }
 });
+app.get('/get/miId/:tarjeta', async (req, res) => {  
+
+    try {
+        const connection = await oracledb.getConnection(dbConfig);
+        const tarjeta = "\'"+req.params.tarjeta+"\'";
+        const result = await connection.execute('select e."id_empleado" from "Empleados" e  where e."tarjeta" = '+tarjeta);
+        res.json(result.rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error en el servidor' });
+    }
+    
+
+});
 app.post('/create', async (req, res) => {
     try {
         const connection = await oracledb.getConnection(dbConfig);
@@ -176,7 +202,9 @@ app.post('/create', async (req, res) => {
         console.error('Error al agregar el registro:', error);
         res.status(500).json({ mensaje: 'Error interno del servidor' });
     }
+   
 });
+
 app.put('/update/:campo', async (req, res) => {  // en este caso   recibiremos un json de la tabla empleados
 
     try {
@@ -207,6 +235,33 @@ app.put('/update/:campo', async (req, res) => {  // en este caso   recibiremos u
         console.error('Error al actualizar el registro:', error);
         res.status(500).json({ mensaje: 'Error interno del servidor' });
     }
+
+});
+
+app.post('/create/horas', async (req, res) => {
+    try {
+        const connection = await oracledb.getConnection(dbConfig);
+        // Prepara la sentencia SQL
+        const sql = `INSERT INTO "Horas_entrada" VALUES (seq_horas_entrada_id_fichaje.nextval, :id_dept, :id_empleado, DEFAULT)`;
+
+        // Ejecuta la sentencia SQL con los valores proporcionados en la solicitud
+        const result = await connection.execute(sql, {
+            id_dept: req.body.id_dept,
+            id_empleado: req.body.id_empleado
+        }, {
+            autoCommit: true // Realiza un commit automáticamente después de la inserción
+        });
+
+        // Libera la conexión
+        await connection.close();
+
+        // Responde con un mensaje de éxito
+        res.status(201).json({ mensaje: 'Registro agregado con éxito' });
+    } catch (error) {
+        console.error('Error al agregar el registro:', error);
+        res.status(500).json({ mensaje: 'Error interno del servidor' });
+    }
+
 
 });
 app.delete('/delete', async (req, res) => {  // en este caso   recibiremos un json de la tabla empleados

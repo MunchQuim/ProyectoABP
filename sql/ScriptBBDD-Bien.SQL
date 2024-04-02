@@ -242,7 +242,7 @@ INSERT INTO "Empleados" VALUES (seq_empleados_id_empleado.nextval,
                                 '',
                                 (SELECT "id_dept" FROM "Departamentos" WHERE "nombre_dept" = 'Direccion'),
                                 default,
-                                '[3, 189, 217, 4, 99]'
+                                '[3,189,217,4,99]'
                                 );
                                 
 INSERT INTO "Empleados" VALUES (seq_empleados_id_empleado.nextval, --id
@@ -256,7 +256,7 @@ INSERT INTO "Empleados" VALUES (seq_empleados_id_empleado.nextval, --id
                                 (SELECT "id_empleado" FROM "Empleados" WHERE "nombre"||' '||"apellido" = 'David Girbau'), --jefe
                                 (SELECT "id_dept" FROM "Departamentos" WHERE "nombre_dept" = 'Laboratorio'), --departamento
                                 './img/users/PinedaImg.png',
-                                '[132, 201, 154, 138, 93]'
+                                '[132,201,154,138,93]'
                                 );
                                 
 INSERT INTO "Empleados" VALUES (seq_empleados_id_empleado.nextval, 
@@ -270,7 +270,7 @@ INSERT INTO "Empleados" VALUES (seq_empleados_id_empleado.nextval,
                                 (SELECT "id_empleado" FROM "Empleados" WHERE "nombre"||' '||"apellido" = 'David Girbau'),
                                 (SELECT "id_dept" FROM "Departamentos" WHERE "nombre_dept" = 'Administracion'),
                                 default,
-                                '[170, 206, 138, 132, 106]'
+                                '[170,206,138,132,106]'
                                 );
                                 
 INSERT INTO "Empleados" VALUES (seq_empleados_id_empleado.nextval, 
@@ -284,7 +284,7 @@ INSERT INTO "Empleados" VALUES (seq_empleados_id_empleado.nextval,
                                 (SELECT "id_empleado" FROM "Empleados" WHERE "nombre"||' '||"apellido" = 'Joaquim Pineda'),
                                 (SELECT "id_dept" FROM "Departamentos" WHERE "nombre_dept" = 'Laboratorio'),
                                 default,
-                                '[58, 183, 210, 133, 218]'
+                                '[58,183,210,133,218]'
                                 );
                                 
 INSERT INTO "Empleados" VALUES (seq_empleados_id_empleado.nextval, 
@@ -298,7 +298,7 @@ INSERT INTO "Empleados" VALUES (seq_empleados_id_empleado.nextval,
                                 (SELECT "id_empleado" FROM "Empleados" WHERE "nombre"||' '||"apellido" = 'Joaquim Pineda'),
                                 (SELECT "id_dept" FROM "Departamentos" WHERE "nombre_dept" = 'Laboratorio'),
                                 default,
-                                '[170, 59, 53, 102, 194]'
+                                '[170,59,53,102,194]'
                                 );
                                 
 INSERT INTO "Empleados" VALUES (seq_empleados_id_empleado.nextval, 

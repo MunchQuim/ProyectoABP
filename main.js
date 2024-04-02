@@ -98,18 +98,21 @@ function startGame() {
     puerta1 = new component(puertaMeds.ancho, puertaMeds.alto, "./img/puerta.png", 232, 120.9, puertaMeds.ancho, puertaMeds.alto, true, "puerta")
     //sensor1 = new bComponent(sensorMeds.ancho, sensorMeds.alto, "./img/lector.png", 322, 181)
     puerta1.puerta = departamentos[0].nombre_dept;
+    puerta1.puertaDepartamento = departamentos[0].id_dept;
     puerta1.recibirCodigos();
     console.log(puerta1.puerta + ": " + puerta1.codigo)
 
     puerta2 = new component(puertaMeds.ancho, puertaMeds.alto, "./img/puerta.png", 638, 120.9, puertaMeds.ancho, puertaMeds.alto, true, "puerta")
     //sensor2 = new bComponent(sensorMeds.ancho, sensorMeds.alto, "./img/lector.png", 728, 181)
     puerta2.puerta = departamentos[2].nombre_dept;
+    puerta2.puertaDepartamento = departamentos[2].id_dept;
     puerta2.recibirCodigos();
     console.log(puerta2.puerta + ": " + puerta2.codigo)
 
     puerta3 = new component(puertaMeds.ancho, puertaMeds.alto, "./img/puerta.png", 1044, 120.9, puertaMeds.ancho, puertaMeds.alto, true, "puerta")
     //sensor3 = new bComponent(sensorMeds.ancho, sensorMeds.alto, "./img/lector.png", 1134, 181)
     puerta3.puerta = departamentos[1].nombre_dept;
+    puerta3.puertaDepartamento = departamentos[1].id_dept;
     puerta3.recibirCodigos();
     console.log(puerta3.puerta + ": " + puerta3.codigo)
 
@@ -222,30 +225,33 @@ function component(width, height, imageSrc, x, y, cW, cH, movible, name) {
     this.speedY = 0;
     this.multspeed = 2;
     this.x = x;
-    this.xObjetivo = x - width;
-    this.activo = false;
+    this.xObjetivo = x - width;//xObjetivo es para mover las puertas horizontalmente
+    this.activo = false;// solo se moveran si estan activas
     this.y = y;
-    this.cW = cW;
+    this.cW = cW;//cW y cH determinan el area colision diria que tras tantos cambios son facilmente reemplazables pero no me atrevo a cambiar nada
     this.cH = cH;
-    this.image = new Image();
+    this.image = new Image();// otorgan una imagen al objeto
     this.image.src = imageSrc;
-    this.movible = movible;
-    this.name = name
-    this.puerta;
-    this.codigo = [];
-    this.colliderPropio = [
+    this.movible = movible;// debe ser booleano, sirve para mover los colliders, ahora que lo pienso deberia ser reemplazable pero lo dicho, no me atrevo
+    this.name = name // le doy un nombre, basicamente me sirve para limitar que objetos hacer checkeo de distancia
+    this.puerta; // dirigido a las puertas de los departamentos para decir de que departamento es.
+    this.puertaDepartamento;
+    this.codigo = [];// cada puerta recibe todas las tarjetas que tienen permiso para entrar
+
+    this.colliderPropio = [ // por lo general un objeto se crea cuadrado con 4 colliders que lo delimitan
         new collider(this.x, this.y, this.x, this.y + this.cH),//origen-vertical
         new collider(this.x, this.y, this.x + this.cW, this.y),//origen-horizontal
         new collider(this.x + this.cW, this.y + this.cH, this.x + this.cW, this.y),//destino-horizontal
         new collider(this.x + this.cW, this.y + this.cH, this.x, this.y + this.cH)//destino-vertical
     ];
-    colliderArray.push(this.colliderPropio);
+    colliderArray.push(this.colliderPropio);// el collider(en forma de array) se envia a un array externo para facilitar su update continuo
     /* this.col00 = {x: this.x, y: this.y};//arriba izquierda
     this.col01 = {x: this.x + this.width, y: this.y};  //arriba derecha
     this.col10 = {x: this.x, y: this.y + this.height}; // abaja izquierda
     this.col11 = {x: this.x + this.width, y: this.y + this.height}; //abajo derecha */
 
-    this.checkDistance = function () {
+    this.checkDistance = function () {// esta funcion la utilizo para determinar la distancia con la cual se puede interactuar con objetos, como la puerta y la secretaria
+        // chequeo de puertas
         if (this.name == "puerta") {
             let x1 = this.x + this.width / 2//punto medio de la puerta
             let y1 = this.y + this.height / 2; //altura de la puerta
@@ -253,7 +259,7 @@ function component(width, height, imageSrc, x, y, cW, cH, movible, name) {
             let y2 = myGamePiece.y//altura del personaje
             let dX = x1 - x2;
             let dY = y1 - y2;
-            let distancia = Math.sqrt(Math.pow(dX, 2) + Math.pow(dY, 2))
+            let distancia = Math.sqrt(Math.pow(dX, 2) + Math.pow(dY, 2))// determino la distancia por pitagoras
             //console.log(distancia)
             if (distancia < 70 && myGamePiece.y > this.y + this.height / 2 && !this.activo) {
                 ctx = myGameArea.context;
@@ -263,22 +269,20 @@ function component(width, height, imageSrc, x, y, cW, cH, movible, name) {
                 ctx.fillText("¡Bienvenido a monlab!", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 10 + this.height / 2.5,)
                 ctx.fillText("Para entrar a", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 25 + this.height / 2.5,)
                 ctx.fillText("\"" + this.puerta + "\"", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 40 + this.height / 2.5,)
-                ctx.fillText("porfavor acerque la", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 55 + this.height / 2.5,)
+                ctx.fillText("Porfavor, acerque la", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 55 + this.height / 2.5,)
                 ctx.fillText("tarjeta al lector", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 70 + this.height / 2.5,)
-                //console.log(leerTarjeta(this.codigo));
-                this.lectura();
-                 
-                
-                
-                /* if (leerTarjeta(this.codigo)) {//condicion de recibir el json
-                    this.activo = true;
-                } */
+                if (!this.activo) {
+                    this.lectura();// lee la informacion de la api para determinar si la tarjeta tiene permisos
+                }
 
+                // añadir aquí funcion para añadir datos de horas de entrada //
             }
+            // aprovecho el chequeo de que es una puerta para darle una velocidad si ha sido activada, entonces se movera en la fase de update/newpos
             if (this.activo && this.x != this.xObjetivo) {
                 //console.log(this.xObjetivo+" "+this.x)
                 this.speedX = -1;
             }
+            //cuando su posicion alcanza la objetivo elimina sus colliders del array de colliders 
             if (this.x == this.xObjetivo) {
                 this.speedX = 0;
                 let index = colliderArray.indexOf(this.colliderPropio)
@@ -288,9 +292,10 @@ function component(width, height, imageSrc, x, y, cW, cH, movible, name) {
             }
 
         }
+        // en el caso que sea la secretaria
         else if (this.name == "secretaria") {
-            let x1 = this.x + this.width / 2//punto medio de la puerta
-            let y1 = this.y + this.height / 2; //altura de la puerta
+            let x1 = this.x + this.width / 2//punto medio de la secretaria
+            let y1 = this.y + this.height / 2; //altura de la secretaria
             let x2 = myGamePiece.x + myGamePiece.width / 2 //punto medio del personaje
             let y2 = myGamePiece.y//altura del personaje
             let dX = x1 - x2;
@@ -304,45 +309,68 @@ function component(width, height, imageSrc, x, y, cW, cH, movible, name) {
                 ctx.fillStyle = "black";
                 ctx.fillText("¡Bienvenido a monlab!", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 10 + this.height / 2.5,)
                 ctx.fillText(myGamePiece.name, bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 25 + this.height / 2.5,)
-                ctx.fillText("¿Quiere resgistrar a alguien?", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 40 + this.height / 2.5,)
-                ctx.fillText("Pulse \"E\"", bocadillo.width / 20 + this.x + this.width * 1.1, this.y - bocadillo.height + 55 + this.height / 2.5,)
             }
         }
 
-
     };
+    // lo llaman las puertas
     this.lectura = async function () {
         let respuesta = false;
-        try {
-            const response = await fetch('http://localhost:2728/data');
+        let recibido;
+        try {// hace un fetch a la direccion establecida
+            const response = await fetch('http://194.168.124.10:2728/data');
             if (!response.ok) {
                 throw new Error('No se pudo obtener el JSON');
             }
             const jsonData = await response.json();
-            //console.log(jsonData);
-            
+
+            // si no ha habido ningun error pasara por todos los codigos guardados en la puerta y si alguno coincide activa la puerta
             this.codigo.forEach(element => {
-                
-                let recibido = "["+jsonData.card_id+"]";
-                console.log(element+": "+recibido);
-                if (element == recibido){
+
+                recibido = "[" + jsonData.card_id + "]";
+                console.log(element + ": " + recibido);
+                if (element == recibido) {
                     console.log("hola");
                     respuesta = true;
-                    
                 }
             });
-            if(respuesta || myGameArea.keys[69]){
-                console.log("permiso condecido");
+            if (!this.activo && respuesta) {
                 this.activo = true;
+                console.log("permiso condecido");
+                const misDatos = await fetch('http://localhost:2727/get/miId/' + recibido)
+                if (!misDatos.ok) {
+                    throw new Error('No se pudo obtener el JSON');
+                }
+                const miJson = await misDatos.json();
+                const request = {
+                    id_dept: this.puertaDepartamento,
+                    id_empleado: miJson[0][0]
+                }
+                const response = await fetch('http://localhost:2727/create/horas', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id_dept: this.puertaDepartamento,
+                        id_empleado: miJson[0][0]
+                    })
+                });
+
+                
+                respuesta = false;
             };
-            
+
         } catch (error) {
             console.error(error);
             throw new Error('Error al obtener los datos JSON');
         }
     }
 
+    // funcion que updatea todos los objetos
     this.update = function () {
+        // en el caso que sea movible recalcula la posicion de sus colliders, creo que lo hice así para reducir la carga 
+        // eliminando el calculo de aquellos que no se van a mover.
         if (this.movible) {
             let newColliderPropio = [
                 new collider(this.x, this.y, this.x, this.y + cH),//origen-vertical
@@ -351,20 +379,23 @@ function component(width, height, imageSrc, x, y, cW, cH, movible, name) {
                 new collider(this.x + cW, this.y + cH, this.x, this.y + cH)//destino-vertical
             ]
             let index = colliderArray.indexOf(this.colliderPropio)
-            //console.log(colliderArray.indexOf(this.colliderPropio))
-            if (index !== -1) {
+            if (index !== -1) {// en el caso que todo vaya bien substituye tanto su array de colliders como la que está en el array externa por la nueva
                 colliderArray[index] = newColliderPropio;
                 this.colliderPropio = newColliderPropio;
             }
         }
+        // reimprime sus imagenes
         ctx = myGameArea.context;
         ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
     };
+    // cuando se inicializa el objeto lo copia en el array de updates para facilitar su updateo mediante un bucle.
     updateArray.push(this);
+    // newpos mueve el objeto segun su velocidad
     this.newPos = function () {
         this.x += this.speedX;
         this.y += this.speedY;
     };
+    // la funcion recibir codigos recoge las tarjetas que corresponden a cada puerta
     this.recibirCodigos = function () {
         permisos.forEach(element => {
             if (element.nombre_dept == this.puerta) {
@@ -375,6 +406,7 @@ function component(width, height, imageSrc, x, y, cW, cH, movible, name) {
     }
 
 }
+
 function collider(A0, A1, B0, B1) {
 
     this.pointA = { x: A0, y: A1 };
@@ -383,7 +415,7 @@ function collider(A0, A1, B0, B1) {
     this.lineWidth = 2;
 
     this.checkCollision = function (gameObject) {
-        // Verificar colisión con el componente controlado
+        // Verificar colisión
         if (
             gameObject.x + gameObject.speedX < Math.max(this.pointA.x, this.pointB.x) &&
             gameObject.x + gameObject.speedX + gameObject.width > Math.min(this.pointA.x, this.pointB.x) &&
@@ -391,7 +423,7 @@ function collider(A0, A1, B0, B1) {
             gameObject.y + gameObject.speedY + gameObject.height > Math.min(this.pointA.y, this.pointB.y)
 
         ) {
-            // Hay colisión, implementa la lógica de respuesta a la colisión aquí
+            //hay colision
             gameObject.speedX = 0;
             gameObject.speedY = 0;
             console.log("Colisión detectada: ");
@@ -482,7 +514,7 @@ function imagenFrame() {
 }
 
 async function leerTarjeta(codigos) {
-    
+
 
 }
 

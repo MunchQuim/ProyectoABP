@@ -1,7 +1,10 @@
 let numero;
 let datos;
+let permisos;
+let departamentos = "";
 let ids;
 let index = 0;
+
 async function recibirRegistros(){
     const response = await fetch('http://localhost:2727/get/count');
     const data = await response.json();
@@ -23,12 +26,21 @@ async function recibirIds(){
     const datos = data;
     return(datos); 
 }
+async function recibirDepartamentos(id){
+    const response = await fetch('http://localhost:2727/get/permisos/'+id);
+    const data = await response.json();
+    //console.log(data);
+    const datos = data;
+    return(datos); 
+}
+
 async function recepcionesIniciales() {
     try {
         numero = await recibirRegistros();
         ids = await recibirIds();
         datos = await recibirDatos(ids[index][0]);
-        console.log(datos[0].id_empleado)
+        permisos = await recibirDepartamentos(ids[index][0]);
+        //console.log(permisos)
         imprimeFicha();
     } catch (error) {
         console.error('Error al obtener el nombre:', error);
@@ -48,14 +60,23 @@ function imprimeFicha() {
     }
     document.getElementById("correo").innerHTML = datos[0].correo;
     document.getElementById("telefono").innerHTML = datos[0].telefono;
-    document.getElementById("id").innerHTML = datos[0].tarjeta
+    permisos.forEach(element => {
+        console.log(element.nombre_dept)
+        departamentos += element.nombre_dept;
+        if(element != permisos[permisos.length -1]){
+           departamentos += ", "
+        }
+        //console.log(departamentos)
+    });
+    document.getElementById("id").innerHTML = departamentos;
+    departamentos = "";
     document.getElementById("dni").innerHTML = datos[0].DNI;
 }
 function zonaTrabajo(id) {
     window.location.href = "../zonaTrabajo.html?id=" + encodeURIComponent(id)
 }
 async function cambio(suma) {
-    console.log(index)
+    //console.log(index)
     index += suma;
     if (index <0){
         index = numero-1;
@@ -64,6 +85,7 @@ async function cambio(suma) {
         index = 0;
     }
     datos = await recibirDatos(ids[index][0]);
+    permisos = await recibirDepartamentos(ids[index][0])
     imprimeFicha();
 }
 document.getElementById("btn").addEventListener("click",function () {zonaTrabajo(ids[index][0]); });
